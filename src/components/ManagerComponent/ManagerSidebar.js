@@ -129,7 +129,11 @@ export default function ManagerSidebar(props) {
     };
 
     const logOut = () => {
-        localStorage.clear()
+        // localStorage.clear()
+        localStorage.removeItem("manager")
+        localStorage.removeItem("manager_id")
+        localStorage.removeItem("manager_jwt")
+        localStorage.removeItem("companyId")
         // dispatch({ type: "CLEAR" })
         history.push("/")
     }

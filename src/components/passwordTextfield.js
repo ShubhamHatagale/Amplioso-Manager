@@ -58,9 +58,10 @@ const PasswordTextField = ({ label, ...props }) => {
                 {inputElement}
                 <label htmlFor={field.name} >{label}</label>
                 <ErrorMessage component="div" name={field.name} className="error" />
+
             </div >
             <div onClick={() => setType(!type)} >
-                {type ? <VisibilityOff /> : <Visibility />}
+                {type ? <VisibilityOff style={{ position: "relative", top: "-60px", left: "508px", cursor: "pointer" }} /> : <Visibility style={{ position: "relative", top: "-60px", left: "508px", cursor: "pointer" }} />}
             </div>
         </div>
     )

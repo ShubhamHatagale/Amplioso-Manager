@@ -36,7 +36,7 @@ export default function EditSurvey() {
 
     const ExtendedDays = [
         { label: 'Two Weeks', value: 1 },
-        { label: 'Month', value: 2 },
+        { label: 'One Month', value: 2 },
         { label: 'Three Months', value: 3 },
         { label: 'Six Months', value: 4 },
     ]

@@ -629,8 +629,6 @@ export default function AssignSurvey(props) {
                             last_name: feedback_collected.lastName,
                             status: 'Pending',
                             recipient_role: feedback_collected.recipient_role,
-                            prof_img: feedback_collected.prof_img.name,
-                            prof_img: feedback_collected.file,
                             user_email: feedback_collected.email,
                             employee_id: letest_Employee_Id,
                             manager_id: managerid,
@@ -784,9 +782,9 @@ export default function AssignSurvey(props) {
     }
 
     const OnSubmitEditForm = async (values) => {
-        console.log(values)
+        console.log(values.collect_feedback[0].email)
         var checkMailExist = await checkMail(values.collect_feedback[0].email);
-        // return false
+
         console.log(checkMailExist);
         if (checkMailExist == 0) {
 
@@ -847,102 +845,45 @@ export default function AssignSurvey(props) {
                     if (resData.status == 200) {
                         values.collect_feedback.map((item, key) => {
                             let feedback_collected = item;
-                            var myHeadersForm = new Headers();
-                            const token = localStorage.getItem("manager_jwt");
-                            myHeadersForm.append("Authorization", token);
-                            var formdata = new FormData();
-                            // formdata.append('first_name', "shubham Hatagale");
-
-                            formdata.append('first_name', feedback_collected.firstName)
-                            formdata.append('last_name', feedback_collected.lastName)
-                            formdata.append('status', 'Pending')
-                            formdata.append('recipient_role', feedback_collected.recipient_role)
-                            if (feedback_collected.prof_img) {
-                                formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
-                            }
-                            // formdata.append('prof_img', feedback_collected.prof_img,feedback_collected.prof_img.name)
-                            // formdata.append('file_img', feedback_collected.file)
-                            formdata.append('user_email', feedback_collected.email)
-                            formdata.append('employee_id', exitEmployeeId)
-                            formdata.append('manager_id', managerid)
-                            formdata.append('company_id', companyid)
-                            formdata.append('role', 5)
-
-                            var requestOptionsForm = {
-                                method: "post",
-                                headers: myHeadersForm,
-                                body: formdata,
-                                redirect: 'follow'
+                            var myHeaders = new Headers();
+                            myHeaders.append("Content-Type", "application/json");
+                            myHeaders.append("Authorization", token);
+                            var raw = JSON.stringify({
+                                first_name: feedback_collected.firstName,
+                                last_name: feedback_collected.lastName,
+                                status: 'Pending',
+                                recipient_role: feedback_collected.recipient_role,
+                                user_email: feedback_collected.email,
+                                employee_id: exitEmployeeId,
+                                manager_id: managerid,
+                                company_id: companyid,
+                                role: 5,
+                            })
+                            var requestOptions = {
+                                method: "POST",
+                                headers: myHeaders,
+                                body: raw,
+                                redirect: "follow",
                             };
-
-
-                            console.log(formdata)
-                            fetch(BaseURL + `/collect_feedback`, requestOptionsForm)
-                                .then(responseForm => responseForm.json())
-                                .then(resDataForm => {
-                                    console.log(resDataForm)
+                            console.log(requestOptions)
+                            fetch(BaseURL + `/collect_feedback`, requestOptions)
+                                .then((response) => response.json())
+                                .then((resData) => {
+                                    console.log(resData);
                                     if (resData.status == 200) {
-                                        // setloading(0)
-                                        setConfirmDialog({
-                                            isOpen: true,
-                                            title: 'Alert',
-                                            subTitle: "Survey Submitted Successfully",
-                                        })
-                                        console.log("Records Submitted");
+                                        console.log("collected Feedback" + (key + 1));
+                                        if (values.collect_feedback.length === (key + 1)) {
+                                            console.log("All feedback collected");
+                                            setConfirmDialog({
+                                                isOpen: true,
+                                                title: 'Alert',
+                                                subTitle: "Survey Submitted Successfully",
+                                            })
+                                        }
                                     }
                                 })
-                                .catch(error => console.log('error', error));
+                                .catch((error) => console.log("error", error));
                         })
-
-
-
-
-                        // values.collect_feedback.map((item, key) => {
-                        //     let feedback_collected = item;
-                        //     var myHeadersForm = new Headers();
-                        //     const token = localStorage.getItem("manager_jwt");
-                        //     myHeadersForm.append("Authorization", token);
-                        //     var formdata = new FormData();
-                        //     formdata.append('first_name', feedback_collected.firstName);
-                        //     formdata.append('last_name', feedback_collected.lastName);
-                        //     formdata.append('status', "Pending");
-                        //     formdata.append('recipient_role', feedback_collected.recipient_role);
-                        //     // if (feedback_collected.file) {
-                        //     //     formdata.append("prof_img", feedback_collected.file, feedback_collected.prof_img.name);
-                        //     // }
-                        //     // formdata.append("prof_img", feedback_collected.prof_img.name);
-                        //     formdata.append("file", feedback_collected.file);
-                        //     formdata.append('user_email', feedback_collected.email);
-                        //     formdata.append('employee_id', exitEmployeeId);
-                        //     formdata.append('manager_id', managerid);
-                        //     formdata.append('company_id', companyid);
-                        //     formdata.append('role', 5);
-
-                        //     var requestOptionsForm = {
-                        //         method: 'POST',
-                        //         headers: myHeadersForm,
-                        //         body: formdata,
-                        //         redirect: 'follow'
-                        //     };
-
-
-                        //     console.log(formdata)
-                        //     fetch(`http://localhost:9000/masters/collect_feedback`, requestOptionsForm)
-                        //         .then(responseForm => responseForm.json())
-                        //         .then(resDataForm => {
-                        //             console.log(resDataForm)
-                        //             // if (resData.status == 200) {
-                        //             //     // setloading(0)
-                        //             //     setConfirmDialog({
-                        //             //         isOpen: true,
-                        //             //         title: 'Alert',
-                        //             //         subTitle: "Survey Submitted Successfully",
-                        //             //     })
-                        //             //     console.log("Records Submitted");
-                        //             // }
-                        //         })
-                        //         .catch(error => console.log('error', error));
-                        // })
 
 
                     }
@@ -956,26 +897,13 @@ export default function AssignSurvey(props) {
         }
     };
 
-
-  
-
-    const fileHandler = (event) => {
-
-        if (event.target.files && event.target.files[0]) {
-            console.log(event.target.files[0])
-            console.log(event.target.name)
-            // setFieldValue(event.target.name, event.target.files[0])
-            // setImageurl(URL.createObjectURL(event.target.files[0]))
-            // setimageUpload(event.target.files[0]);
-        }
-    };
     return (
         <div>
             {/* {console.log("props",props)} */}
-            <ManagerHeader />
+            {/* <ManagerHeader /> */}
             <div className="section inner-content">
                 <div className="section-title">
-                    <h1>Launch New Survey For An Employee</h1>
+                    <h1>Manage Lead</h1>
                     {/* <div className="nav-wrapper inner-breadcrumb">
                         <div className="col s12 pad-l-0">
                             <a href="#!">Dashboard </a>
@@ -997,12 +925,46 @@ export default function AssignSurvey(props) {
                                             className='select-dropdown dropdown-trigger'
                                         />
                                     </div>) : (null)}
-                                <div className="col m4 s12 padtb">
+
+                                {props.data == "1" ? (
+                                    <div className="col m12 s12 padtb">
+                                        {/* <div className="col m12 s12 padtb">
+                                        </div>
+                                        <div className="col m4 s12 padtb">
+                                            <h6 >Does this person Leader ?</h6>
+                                        </div>
+                                        <p className="mb-1 redio_btn">
+                                            <label>
+                                                <input name="yes" type="radio" value="yes"
+                                                    checked={true}
+                                                />
+                                                <span htmlFor={`props.name`}>{`yes`}</span>
+                                            </label>
+                                            <label>
+                                                <input name="yes" type="radio" value="yes"
+                                                    checked={true}
+                                                />
+                                                <span htmlFor={`props.name`}>{`No`}</span>
+                                            </label>
+
+                                        </p> */}
+
+                                    </div>
+                                ) : null}
+
+                                <div className="col m6 s12 padtb" style={{ marginTop: "20px" }}>
+                                    <label className="label_active">If New,Add New Employee</label>
+
+                                </div>
+
+
+                                <div className="col m6 s12 padtb">
+
                                     <button
                                         class="waves-effect waves-light btn-large mb-1 mr-1"
                                         onClick={handleAdd}
                                     >
-                                        Add Employee
+                                        Add New Employee
                                     </button>
                                 </div>
                                 {/* {props.data == "1" ? (
@@ -1212,195 +1174,17 @@ export default function AssignSurvey(props) {
                                                             {errors.year_of_experience ? <div className='error'>{errors.year_of_experience}</div> : null}
                                                         </div>
                                                     </div>
+
+
                                                     <div className="row">
-                                                        <div className="col m12 s12 padtb">
-                                                            <div className="col m2 s12 padtb">
-                                                            </div>
-                                                            <div className="col m4 s12 padtb">
-                                                                <h6 >Collect feedback from</h6>
-                                                            </div>
-                                                            <FieldArray
-                                                                name="collect_feedback"
-                                                                render={({ insert, remove, push }) => (
-                                                                    <div >
-                                                                        {values.collect_feedback.length > 0 &&
-                                                                            values.collect_feedback.map((friend, index) => (
-                                                                                <div
-                                                                                    className="col m12 s12 padtb"
-                                                                                    key={index}
-                                                                                >
-                                                                                    <div className="col m1 s12 padtb">
-                                                                                    </div>
-                                                                                    <div className="col m2 s12 padtb">
-                                                                                        <AssignTextField
-                                                                                            label="First Name"
-                                                                                            elementType="add"
-                                                                                            name={`collect_feedback.${index}.firstName`}
-                                                                                            type="text"
-                                                                                        />
-                                                                                        {/* <Field
-                                                                                    className="form-control"
-                                                                                    name={`collect_feedback.${index}.firstName`}
-                                                                                    placeholder="firstName"
-                                                                                    type="text"
-                                                                                /> */}
-                                                                                        {/* {errors &&
-                                                                                            errors.collect_feedback &&
-                                                                                            errors.collect_feedback[index] &&
-                                                                                            errors.collect_feedback[index].firstName &&
-                                                                                            touched &&
-                                                                                            touched.collect_feedback &&
-                                                                                            touched.collect_feedback[index] &&
-                                                                                            touched.collect_feedback[index].firstName && (
-                                                                                                <div className="field-error">
-                                                                                                    {errors.collect_feedback[index].firstName}
-                                                                                                </div>
-                                                                                            )} */}
-                                                                                    </div>
-                                                                                    <div className="col m2 s12 padtb">
-                                                                                        <AssignTextField
-                                                                                            label="Last Name"
-                                                                                            elementType="add"
-                                                                                            name={`collect_feedback.${index}.lastName`}
-                                                                                            type="text"
-                                                                                        />
-                                                                                        {/* <Field
-                                                                                    className="form-control"
-                                                                                    name={`collect_feedback.${index}.lastName`}
-                                                                                    placeholder="lastName"
-                                                                                    type="text"
-                                                                                />
-                                                                                {errors &&
-                                                                                    errors.collect_feedback &&
-                                                                                    errors.collect_feedback[index] &&
-                                                                                    errors.collect_feedback[index].lastName &&
-                                                                                    touched &&
-                                                                                    touched.collect_feedback &&
-                                                                                    touched.collect_feedback[index] &&
-                                                                                    touched.collect_feedback[index].lastName && (
-                                                                                        <div className="field-error">
-                                                                                            {errors.collect_feedback[index].lastName}
-                                                                                        </div>
-                                                                                    )} */}
-                                                                                    </div>
-                                                                                    <div className="col m2 s12 padtb">
-                                                                                        <AssignTextField
-                                                                                            label="E-mail"
-                                                                                            elementType="add"
-                                                                                            name={`collect_feedback.${index}.email`}
-                                                                                            type="text"
-                                                                                        />
-                                                                                        {/* <Field
-                                                                                    className="form-control"
-                                                                                    name={`collect_feedback.${index}.role`}
-                                                                                    placeholder="role"
-                                                                                    type="text"
-                                                                                />
-                                                                                {errors &&
-                                                                                    errors.collect_feedback &&
-                                                                                    errors.collect_feedback[index] &&
-                                                                                    errors.collect_feedback[index].role &&
-                                                                                    touched &&
-                                                                                    touched.collect_feedback &&
-                                                                                    touched.collect_feedback[index] &&
-                                                                                    touched.collect_feedback[index].role && (
-                                                                                        <div className="field-error">
-                                                                                            {errors.collect_feedback[index].role}
-                                                                                        </div>
-                                                                                    )} */}
-                                                                                    </div>
-                                                                                    <div className="col m2 s12 padtb">
-                                                                                        {/* <AssignTextField
-                                                                                            label="Relation"
-                                                                                            elementType="add"
-                                                                                            name={`collect_feedback.${index}.recipient_role`}
-                                                                                            type="text"
-                                                                                        /> */}
-                                                                                        {/* <div className="col m2 s12 padtb"> */}
-                                                                                        <label className="label_active">Ralationship</label>
-                                                                                        <CustomEditSelect
-                                                                                            search={false}
-                                                                                            onChange={value => setFieldValue(`collect_feedback.${index}.recipient_role`, value)}
-                                                                                            value={`values.collect_feedback.${index}.recipient_role`}
-                                                                                            options={Relationship}
-                                                                                            Field={`recipient_role`}
-                                                                                            Fieldname={`collect_feedback.${index}.recipient_role`}
-                                                                                            className='select-dropdown dropdown-trigger'
-                                                                                        />
-                                                                                        {/* {`errors.collect_feedback.${index}.recipient_role` ? <div className='error'>{`errors.collect_feedback.${index}.recipient_role`}</div> : null} */}
-                                                                                        {errors &&
-                                                                                            errors.collect_feedback &&
-                                                                                            errors.collect_feedback[index] &&
-                                                                                            errors.collect_feedback[index].recipient_role &&
-                                                                                            touched &&
-                                                                                            touched.collect_feedback &&
-                                                                                            touched.collect_feedback[index] &&
-                                                                                            touched.collect_feedback[index].recipient_role && (
-                                                                                                <div className="error">
-                                                                                                    {errors.collect_feedback[index].recipient_role}
-                                                                                                </div>
-                                                                                            )}
-                                                                                        {/* </div> */}
-                                                                                        {/* <Field
-                                                                                    className="form-control"
-                                                                                    name={`collect_feedback.${index}.email`}
-                                                                                    placeholder="email"
-                                                                                    type="email"
-                                                                                />
-                                                                                {errors &&
-                                                                                    errors.collect_feedback &&
-                                                                                    errors.collect_feedback[index] &&
-                                                                                    errors.collect_feedback[index].email &&
-                                                                                    touched &&
-                                                                                    touched.collect_feedback &&
-                                                                                    touched.collect_feedback[index] &&
-                                                                                    touched.collect_feedback[index].email && (
-                                                                                        <div className="field-error">
-                                                                                            {errors.collect_feedback[index].email}
-                                                                                        </div>
-                                                                                    )} */}
-                                                                                    </div>
-                                                                                    {index > 0 && (
-                                                                                        <div className="col m1 s12 padtb">
-                                                                                            <div className="input-field assign col m12 s12 pad-r" >
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    className="waves-effect waves-light btn-large mb-1 mr-1"
-                                                                                                    onClick={() => remove(index)}
-                                                                                                >
-                                                                                                    X
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>)}
-                                                                                    {
-                                                                                        <div className="col m2 s12 padtb">
-                                                                                            <div className="input-field assign col m12 s12 pad-r" >
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    className="waves-effect waves-light btn-large mb-1 mr-1"
-                                                                                                    onClick={() => push(new Collect_feedback())}
-                                                                                                >
-                                                                                                    +
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    }
-                                                                                </div>
-                                                                            ))}
-                                                                        {/* <div className="col m2 s12 padtb">
-                                                                    <div className="input-field assign col m12 s12 pad-r" >
-                                                                        <button
-                                                                            type="button"
-                                                                            className="waves-effect waves-light btn-large mb-1 mr-1"
-                                                                            onClick={() => push(new Collect_feedback())}
-                                                                        >
-                                                                            +
-                                                                        </button>
-                                                                    </div>
-                                                                </div> */}
-                                                                    </div>
-                                                                )}
-                                                            />
+                                                        <div className="col m2 s12 padtb">
+                                                        </div>
+                                                        <div className="col m4 s12 padtb">
+                                                            <h6 >Does this person Leader ?</h6>
+                                                        </div>
+                                                        <div className="col m4 s12 redio_section">
+                                                            <RadioField label="Yes" value="Yes" name="client" HandleStatus={HandleStatus1} isSelectedCheck={radioValue1 == "Yes"} />
+                                                            <RadioField label="No" value="No" name="client" HandleStatus={HandleStatus1} isSelectedCheck={radioValue1 == "No"} />
                                                         </div>
                                                     </div>
                                                     <div class="col m8 s8 pad-r center">
@@ -1677,8 +1461,8 @@ export default function AssignSurvey(props) {
                                                                                             className="col m12 s12 padtb"
                                                                                             key={index}
                                                                                         >
-                                                                                            {/* <div className="col m1 s12 padtb">
-                                                                                            </div> */}
+                                                                                            <div className="col m1 s12 padtb">
+                                                                                            </div>
                                                                                             <div className="col m2 s12 padtb">
                                                                                                 <AssignTextField
                                                                                                     label="First Name"
@@ -1735,34 +1519,6 @@ export default function AssignSurvey(props) {
                                                                                                         </div>
                                                                                                     )}
                                                                                             </div>
-                                                                                            <div className="col m2 s12 padtb">
-                                                                                                <div className="file-field input-field">
-                                                                                                    <div className="btn float-right">
-                                                                                                        <span>File</span>
-                                                                                                        <input type="file"
-                                                                                                            name={`collect_feedback.${index}.prof_img`}
-                                                                                                            onChange={value => {
-                                                                                                                setFieldValue(`collect_feedback.${index}.prof_img`, (value.target.files && value.target.files[0] ? value.target.files[0] : ""))
-                                                                                                                setFieldValue(`collect_feedback.${index}.img_url`, (value.target.files && value.target.files[0] ? URL.createObjectURL(value.target.files[0]) : ""))
-                                                                                                            }
-                                                                                                            }
-                                                                                                        />
-                                                                                                        {/* <input className="file-path validate" type="text" defaultValue="Logo" /> */}
-
-                                                                                                        {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
-                                                                                                    </div>
-                                                                                                    <div className="file-path-wrapper">
-                                                                                                        <input className="file-path validate" type="text" defaultValue="Profile" />
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}
-                                                                                                
-                                                                                                {/* <span>{`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""}</span> */}
-                                                                                                <img src={values.collect_feedback[index].img_url?values.collect_feedback[index].img_url:""} className="comapnylogoimg" style={{marginLeft:"18px"}} width="120" height="85" />
-                                                                                                {/* <img src={`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""} className="comapnylogoimg" width="120" height="85" /> */}
-
-                                                                                            </div>
-
                                                                                             {index > 0 && (
                                                                                                 <div className="col m1 s12 padtb">
                                                                                                     <div className="input-field assign col m12 s12 pad-r" >
@@ -1821,17 +1577,11 @@ export default function AssignSurvey(props) {
                                                         >
                                                             Submit
                                                         </button>
-
                                                     </div>
                                                 </div>
 
                                             ) : (null)}
-
-                                            
-
                                         </Form>
-
-
                                     )
                                 }}
                             />

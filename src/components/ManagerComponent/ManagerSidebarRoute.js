@@ -95,13 +95,21 @@ export default function ManagerSidebarRoute() {
             <div onClick={() => { history.push("/") }}>
                 <ListItem button>
                     <ListItemIcon>
-                        {/* <PersonIcon /> */}
+                        {/* <PersonIcon /> */} 
                         <i className="material-icons">add_to_queue</i>
                     </ListItemIcon>
                     <ListItemText primary="Contact Amplioso" />
                 </ListItem>
             </div>
-
+            <div onClick={() => { history.push("/manager_leads") }}>
+                <ListItem button>
+                    <ListItemIcon>
+                        {/* <PersonIcon /> */} 
+                        <i className="material-icons">people</i>
+                    </ListItemIcon>
+                    <ListItemText primary="Manage Leads" />
+                </ListItem>
+            </div>
         </List >
     );
 }

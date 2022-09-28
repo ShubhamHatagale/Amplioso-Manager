@@ -45,6 +45,7 @@ export default function ManagerDashboard() {
                                                 <i className="material-icons">add_to_queue</i>
                                                 <a onClick={() => { history.push("/requestquestionarie") }}>Contact Amplioso</a>					</div>
                                         </div>
+                                       
                                         {/* <div className="col s12 m6 l6 xl4">
                                             <div className="tiles">
                                                 <i className="material-icons">miscellaneous_services</i>

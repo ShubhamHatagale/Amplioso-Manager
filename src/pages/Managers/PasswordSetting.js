@@ -42,6 +42,7 @@ export default function PasswordSetting() {
     });
     // etc appacche host 000/cns settings
     const OnSubmitForm = async (values) => {
+        // alert("g")
         const checkPassword = await crypto.createHash('sha512').update(values.oldpassword).digest('hex');
         const token = localStorage.getItem("manager_jwt");
         console.log(checkPassword);

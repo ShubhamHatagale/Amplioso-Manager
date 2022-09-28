@@ -13,6 +13,7 @@ import ViewAllSurveys from "./pages/Managers/ViewAllSurveys";
 import EditAssignSurvey from "./pages/Managers/EditLaunchServey";
 import { useLocation } from "react-router-dom";
 import EditSurvey from "./pages/Managers/EditSurvey";
+import ManagerLeads from "./pages/Managers/ManagerLeads";
 
 const ManagerRouting = () => {
     const history = useHistory();
@@ -61,6 +62,10 @@ const ManagerRouting = () => {
                 />
             </ProtectedRoute>
 
+            <ProtectedRoute exact path="/manager_leads">
+                <ManagerSidebar data={<ManagerLeads />}
+                />
+            </ProtectedRoute>
         </Switch>
     );
 };

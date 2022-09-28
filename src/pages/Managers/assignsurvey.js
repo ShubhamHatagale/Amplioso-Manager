@@ -1752,7 +1752,7 @@ export default function AssignSurvey(props) {
                                                                                                         {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
                                                                                                     </div>
                                                                                                     <div className="file-path-wrapper">
-                                                                                                        <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                                                         <input className="file-path validate" type="text" defaultValue="Profile" />
                                                                                                     </div>
                                                                                                 </div>
                                                                                                 {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}

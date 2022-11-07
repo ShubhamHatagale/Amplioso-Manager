@@ -185,6 +185,23 @@ export default function AssignSurvey(props) {
         return respLength;
     }
 
+    const checkFeedFreq = async (defValue) => {
+        var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'multipart/form-data')
+        myHeaders.append("Authorization", token);
+        let res = await fetch(`${backend_url}/masters/collect_feedback/feedFreq/${defValue}`,
+            {
+                method: "get",
+                headers: myHeaders
+            }
+        );
+        let response = await res.json();
+        console.log(response)
+        const respLength = response.data.length;
+        console.log(respLength)
+        return respLength;
+    }
+
     useEffect(() => {
         console.log(showEdit, showAdd)
         console.log("props", props)
@@ -566,6 +583,18 @@ export default function AssignSurvey(props) {
         // if (checkMailExist == 0) {
         // let emp_count = await get_no_emp()
         // console.log(await get_no_emp())
+        var checkMailExist = await checkMail(values.collect_feedback[0].email);
+        var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency);
+
+
+        // if (checkFeedFreqExist > 0) {
+        //     setConfirmDialog({
+        //         isOpen: true,
+        //         title: 'Alert',
+        //         subTitle: `Feedback Frequency Already Exist`,
+        //     })
+        //     return false
+        // }
 
 
         console.log(no_of_emp + " <=" + emp_mastercount)
@@ -618,55 +647,113 @@ export default function AssignSurvey(props) {
                 let count = 0;
                 console.log(resData);
                 let letest_Employee_Id = resData.resultId;
+
                 if (resData.status == 200) {
                     values.collect_feedback.map((item, key) => {
                         let feedback_collected = item;
-                        var myHeaders = new Headers();
-                        myHeaders.append("Content-Type", "application/json");
-                        myHeaders.append("Authorization", token);
-                        var raw = JSON.stringify({
-                            first_name: feedback_collected.firstName,
-                            last_name: feedback_collected.lastName,
-                            status: 'Pending',
-                            recipient_role: feedback_collected.recipient_role,
-                            prof_img: feedback_collected.prof_img.name,
-                            prof_img: feedback_collected.file,
-                            user_email: feedback_collected.email,
-                            employee_id: letest_Employee_Id,
-                            manager_id: managerid,
-                            company_id: companyid,
-                            role: 5,
-                        })
-                        var requestOptions = {
-                            method: "POST",
-                            headers: myHeaders,
-                            body: raw,
-                            redirect: "follow",
-                        };
-                        console.log(requestOptions)
-                        fetch(BaseURL + `/collect_feedback`, requestOptions)
-                            .then((response) => response.json())
-                            .then((resData) => {
-                                console.log(resData);
-                                setcount(prevState => prevState + 1);
-                                console.log(resData.status)
-                                if (resData.status == 200) {
+                        var myHeadersForm = new Headers();
+                        const token = localStorage.getItem("manager_jwt");
+                        myHeadersForm.append("Authorization", token);
+                        var formdata = new FormData();
+                        // formdata.append('first_name', "shubham Hatagale");
 
-                                    console.log("collected Feedback" + (key + 1));
-                                    if (values.collect_feedback.length === (key + 1)) {
-                                        console.log("All feedback collected");
-                                        setConfirmDialog({
-                                            isOpen: true,
-                                            title: 'Alert',
-                                            subTitle: "Survey Submitted Successfully",
-                                        })
-                                    }
+                        formdata.append('first_name', feedback_collected.firstName)
+                        formdata.append('last_name', feedback_collected.lastName)
+                        formdata.append('status', 'Pending')
+                        formdata.append('recipient_role', feedback_collected.recipient_role)
+                        if (feedback_collected.prof_img) {
+                            formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
+                        }
+                        // formdata.append('prof_img', feedback_collected.prof_img,feedback_collected.prof_img.name)
+                        // formdata.append('file_img', feedback_collected.file)
+                        formdata.append('user_email', feedback_collected.email)
+                        formdata.append('feedback_frequency', values.feedback_frequency)
+
+                        formdata.append('employee_id', exitEmployeeId)
+                        formdata.append('manager_id', managerid)
+                        formdata.append('company_id', companyid)
+                        formdata.append('role', 5)
+
+                        var requestOptionsForm = {
+                            method: "post",
+                            headers: myHeadersForm,
+                            body: formdata,
+                            redirect: 'follow'
+                        };
+
+
+                        console.log(formdata)
+                        fetch(BaseURL + `/collect_feedback`, requestOptionsForm)
+                            .then(responseForm => responseForm.json())
+                            .then(resDataForm => {
+                                console.log(resDataForm)
+                                if (resData.status == 200) {
+                                    // setloading(0)
+                                    setConfirmDialog({
+                                        isOpen: true,
+                                        title: 'Alert',
+                                        subTitle: "Survey Submitted Successfully",
+                                    })
+                                    console.log("Records Submitted");
                                 }
                             })
-                            .catch((error) => console.log("error", error));
+                            .catch(error => console.log('error', error));
                     })
 
+
+
                 }
+
+                // if (resData.status == 200) {
+                //     values.collect_feedback.map((item, key) => {
+                //         let feedback_collected = item;
+                //         var myHeaders = new Headers();
+                //         myHeaders.append("Content-Type", "application/json");
+                //         myHeaders.append("Authorization", token);
+                //         var raw = JSON.stringify({
+                //             first_name: feedback_collected.firstName,
+                //             last_name: feedback_collected.lastName,
+                //             status: 'Pending',
+                //             recipient_role: feedback_collected.recipient_role,
+                //             prof_img: feedback_collected.prof_img.name,
+                //             prof_img: feedback_collected.file,
+                //             user_email: feedback_collected.email,
+                //             feedback_frequency: 1,
+                //             employee_id: letest_Employee_Id,
+                //             manager_id: managerid,
+                //             company_id: companyid,
+                //             role: 5,
+                //         })
+                //         var requestOptions = {
+                //             method: "POST",
+                //             headers: myHeaders,
+                //             body: raw,
+                //             redirect: "follow",
+                //         };
+                //         console.log(requestOptions)
+                //         fetch(BaseURL + `/collect_feedback`, requestOptions)
+                //             .then((response) => response.json())
+                //             .then((resData) => {
+                //                 console.log(resData);
+                //                 setcount(prevState => prevState + 1);
+                //                 console.log(resData.status)
+                //                 if (resData.status == 200) {
+
+                //                     console.log("collected Feedback" + (key + 1));
+                //                     if (values.collect_feedback.length === (key + 1)) {
+                //                         console.log("All feedback collected");
+                //                         setConfirmDialog({
+                //                             isOpen: true,
+                //                             title: 'Alert',
+                //                             subTitle: "Survey Submitted Successfully",
+                //                         })
+                //                     }
+                //                 }
+                //             })
+                //             .catch((error) => console.log("error", error));
+                //     })
+
+                // }
             })
             .catch((error) => console.log("error", error));
 
@@ -786,7 +873,17 @@ export default function AssignSurvey(props) {
     const OnSubmitEditForm = async (values) => {
         console.log(values)
         var checkMailExist = await checkMail(values.collect_feedback[0].email);
-        // return false
+        var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency);
+
+        // if (checkFeedFreqExist > 0) {
+        //     setConfirmDialog({
+        //         isOpen: true,
+        //         title: 'Alert',
+        //         subTitle: `Feedback Frequency Already Exist`,
+        //     })
+        //     return false
+        // }
+
         console.log(checkMailExist);
         if (checkMailExist == 0) {
 
@@ -863,6 +960,8 @@ export default function AssignSurvey(props) {
                             // formdata.append('prof_img', feedback_collected.prof_img,feedback_collected.prof_img.name)
                             // formdata.append('file_img', feedback_collected.file)
                             formdata.append('user_email', feedback_collected.email)
+                            formdata.append('feedback_frequency', values.feedback_frequency)
+
                             formdata.append('employee_id', exitEmployeeId)
                             formdata.append('manager_id', managerid)
                             formdata.append('company_id', companyid)
@@ -957,7 +1056,7 @@ export default function AssignSurvey(props) {
     };
 
 
-  
+
 
     const fileHandler = (event) => {
 
@@ -1147,7 +1246,7 @@ export default function AssignSurvey(props) {
                                                     <div className="row">
                                                         <div className="col m2 s12 padtb">
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <h6 >Does this person directly service external clients of the organization ?</h6>
                                                         </div>
                                                         <div className="col m4 s12 redio_section">
@@ -1158,10 +1257,10 @@ export default function AssignSurvey(props) {
                                                     <div className="row">
                                                         <div className="col m2 s12 padtb">
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <h6 >Location of individual</h6>
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <CustomSelect
                                                                 search={false}
                                                                 onChange={value => setFieldValue('location', value)}
@@ -1180,7 +1279,7 @@ export default function AssignSurvey(props) {
                                                         <div className="col m4 s12 padtb">
                                                             <h6 >Working Presence</h6>
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <CustomSelect
                                                                 search={false}
                                                                 onChange={value => setFieldValue('working_presence', value)}
@@ -1196,10 +1295,10 @@ export default function AssignSurvey(props) {
                                                     <div className="row">
                                                         <div className="col m2 s12 padtb">
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <h6 >Approximate years of experience</h6>
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s12 padtb">
                                                             <CustomSelect
                                                                 search={false}
                                                                 onChange={value => setFieldValue('year_of_experience', value)}
@@ -1216,7 +1315,7 @@ export default function AssignSurvey(props) {
                                                         <div className="col m12 s12 padtb">
                                                             <div className="col m2 s12 padtb">
                                                             </div>
-                                                            <div className="col m4 s12 padtb">
+                                                            <div className="col m2 s12 padtb">
                                                                 <h6 >Collect feedback from</h6>
                                                             </div>
                                                             <FieldArray
@@ -1360,6 +1459,37 @@ export default function AssignSurvey(props) {
                                                                                         </div>
                                                                                     )} */}
                                                                                     </div>
+
+
+                                                                                    <div className="col m2 s12 padtb">
+                                                                                        <div className="file-field input-field">
+                                                                                            <div className="btn float-right">
+                                                                                                <span>File</span>
+                                                                                                <input type="file"
+                                                                                                    name={`collect_feedback.${index}.prof_img`}
+                                                                                                    onChange={value => {
+                                                                                                        setFieldValue(`collect_feedback.${index}.prof_img`, (value.target.files && value.target.files[0] ? value.target.files[0] : ""))
+                                                                                                        setFieldValue(`collect_feedback.${index}.img_url`, (value.target.files && value.target.files[0] ? URL.createObjectURL(value.target.files[0]) : ""))
+                                                                                                    }
+                                                                                                    }
+                                                                                                />
+                                                                                                {/* <input className="file-path validate" type="text" defaultValue="Logo" /> */}
+
+                                                                                                {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
+                                                                                            </div>
+                                                                                            <div className="file-path-wrapper">
+                                                                                                <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}
+
+                                                                                        {/* <span>{`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""}</span> */}
+                                                                                        <img src={values.collect_feedback[index].img_url ? values.collect_feedback[index].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
+                                                                                        {/* <img src={`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""} className="comapnylogoimg" width="120" height="85" /> */}
+
+                                                                                    </div>
+
+
                                                                                     {index > 0 && (
                                                                                         <div className="col m1 s12 padtb">
                                                                                             <div className="input-field assign col m12 s12 pad-r" >
@@ -1373,7 +1503,7 @@ export default function AssignSurvey(props) {
                                                                                             </div>
                                                                                         </div>)}
                                                                                     {
-                                                                                        <div className="col m2 s12 padtb">
+                                                                                        <div className="col m1 s12 padtb">
                                                                                             <div className="input-field assign col m12 s12 pad-r" >
                                                                                                 <button
                                                                                                     type="button"
@@ -1752,13 +1882,13 @@ export default function AssignSurvey(props) {
                                                                                                         {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
                                                                                                     </div>
                                                                                                     <div className="file-path-wrapper">
-                                                                                                         <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                                                        <input className="file-path validate" type="text" defaultValue="Profile" />
                                                                                                     </div>
                                                                                                 </div>
                                                                                                 {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}
-                                                                                                
+
                                                                                                 {/* <span>{`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""}</span> */}
-                                                                                                <img src={values.collect_feedback[index].img_url?values.collect_feedback[index].img_url:""} className="comapnylogoimg" style={{marginLeft:"18px"}} width="120" height="85" />
+                                                                                                <img src={values.collect_feedback[index].img_url ? values.collect_feedback[index].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
                                                                                                 {/* <img src={`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""} className="comapnylogoimg" width="120" height="85" /> */}
 
                                                                                             </div>
@@ -1827,7 +1957,7 @@ export default function AssignSurvey(props) {
 
                                             ) : (null)}
 
-                                            
+
 
                                         </Form>
 

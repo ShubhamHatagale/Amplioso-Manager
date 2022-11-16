@@ -92,6 +92,16 @@ export default function ManagerSidebarRoute() {
                     <ListItemText primary="View All Surveys" />
                 </ListItem>
             </div>
+
+            <div onClick={() => { history.push("/survey") }}>
+                <ListItem button>
+                    <ListItemIcon>
+                        {/* <PersonIcon /> */}
+                        <i className="material-icons">transform</i>
+                    </ListItemIcon>
+                    <ListItemText primary="survey" />
+                </ListItem>
+            </div>
             <div onClick={() => { history.push("/") }}>
                 <ListItem button>
                     <ListItemIcon>

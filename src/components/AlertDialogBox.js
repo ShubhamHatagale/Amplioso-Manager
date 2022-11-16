@@ -14,8 +14,13 @@ export default function MaxWidthDialog(props) {
 
   const history = useHistory();
   const HandleClose = () => {
-    setConfirmDialog({ ...confirmDialog, isOpen: false, type: true });
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    // setConfirmDialog({ ...confirmDialog, isOpen: false, type: true });
+
     const user = JSON.parse(localStorage.getItem("manager"));
+    if(props.type=="error"){
+      return false;
+    }
     if (user) {
       history.push(props.link);
     } else {

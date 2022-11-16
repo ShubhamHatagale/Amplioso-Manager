@@ -185,16 +185,29 @@ export default function AssignSurvey(props) {
         return respLength;
     }
 
-    const checkFeedFreq = async (defValue) => {
+    const checkFeedFreq = async (defValue, emp_id) => {
+        // var myHeaders = new Headers();
+        // myHeaders.append('Content-Type', 'multipart/form-data')
+        // myHeaders.append("Authorization", token);
+
+        console.log(defValue, emp_id)
+
         var myHeaders = new Headers();
-        myHeaders.append('Content-Type', 'multipart/form-data')
+        myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Authorization", token);
-        let res = await fetch(`${backend_url}/masters/collect_feedback/feedFreq/${defValue}`,
-            {
-                method: "get",
-                headers: myHeaders
-            }
-        );
+        var raw = JSON.stringify({
+            feedFreq: defValue,
+            employee_id: emp_id
+        })
+        var requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+        };
+
+        let res = await fetch(`${backend_url}/masters/collect_feedback/feedFreq`, requestOptions);
+
         let response = await res.json();
         console.log(response)
         const respLength = response.data.length;
@@ -290,6 +303,7 @@ export default function AssignSurvey(props) {
         setradioValue2(val);
     }
     const handleChangeEmployee = (val) => {
+
         setExitRmployeeId(val)
         const fetchData = async () => {
             const token = localStorage.getItem("manager_jwt");
@@ -463,6 +477,7 @@ export default function AssignSurvey(props) {
             }
         })
     }
+
     const getEditFeedbackMonth = (val, defval) => {
         getfeeddata.map(item => {
             if (item.id == val) {
@@ -583,13 +598,16 @@ export default function AssignSurvey(props) {
         // if (checkMailExist == 0) {
         // let emp_count = await get_no_emp()
         // console.log(await get_no_emp())
+
+        console.log(values)
         var checkMailExist = await checkMail(values.collect_feedback[0].email);
-        var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency);
+        // var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency,values.employee_id);
 
 
         // if (checkFeedFreqExist > 0) {
         //     setConfirmDialog({
         //         isOpen: true,
+        // type:"message",
         //         title: 'Alert',
         //         subTitle: `Feedback Frequency Already Exist`,
         //     })
@@ -604,6 +622,7 @@ export default function AssignSurvey(props) {
             console.log("grather")
             setConfirmDialog({
                 isOpen: true,
+                type: "error",
                 title: 'Alert',
                 subTitle: `Employees Or Manager Count Should Not Be Gratherthan ${no_of_emp}`,
             })
@@ -615,7 +634,7 @@ export default function AssignSurvey(props) {
 
         console.log(values);
         var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
+        // myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Authorization", token);
         var raw = JSON.stringify({
             first_name: values.employee_first_name,
@@ -635,10 +654,33 @@ export default function AssignSurvey(props) {
             working_presence: values.working_presence,
             year_of_experience: values.year_of_experience,
         })
+
+      
+        var formdata = new FormData();
+        formdata.append("first_name", values.employee_first_name)
+        formdata.append("last_name", values.employee_last_name)
+        formdata.append("user_email", values.employee_email)
+        formdata.append("gender", values.employee_gender)
+        formdata.append("status", 'pending')
+        formdata.append("role", 4)
+        formdata.append("company_id", companyid)
+        formdata.append("manager_id", managerid)
+        formdata.append("feedback_frequency", values.feedback_frequency)
+        formdata.append("feedback_year", values.feedback_year)
+        formdata.append("feedback_month", values.feedback_month)
+        formdata.append("best_classified", radioValue)
+        formdata.append("service_external_client", radioValue1)
+        formdata.append("location", values.location)
+        formdata.append("working_presence", values.working_presence)
+        formdata.append("year_of_experience", values.year_of_experience)
+        if (values.emp) {
+            formdata.append("prof_img", values.emp[0].prof_img, values.emp[0].prof_img.name);
+         }
+
         var requestOptions = {
             method: "POST",
             headers: myHeaders,
-            body: raw,
+            body: formdata,
             redirect: "follow",
         };
         fetch(BaseURL + `/employeedetails`, requestOptions)
@@ -646,6 +688,8 @@ export default function AssignSurvey(props) {
             .then((resData) => {
                 let count = 0;
                 console.log(resData);
+                console.log(resData.resultId);
+
                 let letest_Employee_Id = resData.resultId;
 
                 if (resData.status == 200) {
@@ -661,15 +705,16 @@ export default function AssignSurvey(props) {
                         formdata.append('last_name', feedback_collected.lastName)
                         formdata.append('status', 'Pending')
                         formdata.append('recipient_role', feedback_collected.recipient_role)
-                        if (feedback_collected.prof_img) {
-                            formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
-                        }
+                        // if (feedback_collected.prof_img) {
+                        //     formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
+                        // }
                         // formdata.append('prof_img', feedback_collected.prof_img,feedback_collected.prof_img.name)
                         // formdata.append('file_img', feedback_collected.file)
                         formdata.append('user_email', feedback_collected.email)
                         formdata.append('feedback_frequency', values.feedback_frequency)
+                        formdata.append('feedback_year', values.feedback_year)
 
-                        formdata.append('employee_id', exitEmployeeId)
+                        formdata.append('employee_id', letest_Employee_Id)
                         formdata.append('manager_id', managerid)
                         formdata.append('company_id', companyid)
                         formdata.append('role', 5)
@@ -682,15 +727,16 @@ export default function AssignSurvey(props) {
                         };
 
 
-                        console.log(formdata)
+                        // console.log(formdata)
                         fetch(BaseURL + `/collect_feedback`, requestOptionsForm)
                             .then(responseForm => responseForm.json())
                             .then(resDataForm => {
-                                console.log(resDataForm)
+                                // console.log(resDataForm)
                                 if (resData.status == 200) {
                                     // setloading(0)
                                     setConfirmDialog({
                                         isOpen: true,
+                                        type: "message",
                                         title: 'Alert',
                                         subTitle: "Survey Submitted Successfully",
                                     })
@@ -744,6 +790,7 @@ export default function AssignSurvey(props) {
                 //                         console.log("All feedback collected");
                 //                         setConfirmDialog({
                 //                             isOpen: true,
+                // type:"message",
                 //                             title: 'Alert',
                 //                             subTitle: "Survey Submitted Successfully",
                 //                         })
@@ -775,7 +822,7 @@ export default function AssignSurvey(props) {
         let response = await res.json();
         let result = response.data[0].count;
         // console.log(response.data.length + "output");
-        console.log(result);
+        // console.log(result);
         setno_of_emp(result)
 
         // console.log(result.length +"+"+ res2ult.lenght)
@@ -786,7 +833,7 @@ export default function AssignSurvey(props) {
     }
 
     const get_no_man = async () => {
-        console.log(managerid)
+        // console.log(managerid)
         var myHeaders = new Headers();
         myHeaders.append('Content-Type', 'multipart/form-data')
         myHeaders.append("Authorization", token);
@@ -799,8 +846,8 @@ export default function AssignSurvey(props) {
         );
         let response = await res.json();
         let result = response.data[0].count;
-        console.log(response.data.length + "output");
-        console.log(result);
+        // console.log(response.data.length + "output");
+        // console.log(result);
         setno_of_emp(result)
 
 
@@ -814,11 +861,11 @@ export default function AssignSurvey(props) {
         );
         let res2ponse = await res2.json();
         let res2ult = res2ponse.data.length;
-        console.log(res2ponse.data.length + "output");
-        console.log(res2ult);
+        // console.log(res2ponse.data.length + "output");
+        // console.log(res2ult);
 
-        console.log(result + "+" + res2ult);
-        console.log(result == res2ult);
+        // console.log(result + "+" + res2ult);
+        // console.log(result == res2ult);
         set_emp_mastercount(res2ult);
 
 
@@ -835,8 +882,8 @@ export default function AssignSurvey(props) {
         );
         let res3ponse = await res3.json();
         let res3ult = res3ponse.data.length;
-        console.log(res3ponse.data.length + "output");
-        console.log(res3ult);
+        // console.log(res3ponse.data.length + "output");
+        // console.log(res3ult);
 
         // console.log(result + "+" + res3ult);
 
@@ -871,18 +918,29 @@ export default function AssignSurvey(props) {
     }
 
     const OnSubmitEditForm = async (values) => {
-        console.log(values)
-        var checkMailExist = await checkMail(values.collect_feedback[0].email);
-        var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency);
-
-        // if (checkFeedFreqExist > 0) {
-        //     setConfirmDialog({
-        //         isOpen: true,
-        //         title: 'Alert',
-        //         subTitle: `Feedback Frequency Already Exist`,
-        //     })
-        //     return false
+        alert("shub")
+        // if (feedback_collected.prof_img) {
+        //     formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
         // }
+        console.log(values)
+        console.log(values.emp[0].prof_img)
+
+        if (values.emp) {
+           console.log("prof_img", values.emp[0].prof_img, values.emp[0].prof_img.name);
+        }
+        // return false
+        var checkMailExist = await checkMail(values.collect_feedback[0].email);
+        var checkFeedFreqExist = await checkFeedFreq(values.feedback_frequency, exitEmployeeId);
+        console.log(checkFeedFreqExist)
+        if (checkFeedFreqExist > 0) {
+            setConfirmDialog({
+                isOpen: true,
+                type: "error",
+                title: 'Alert',
+                subTitle: `Feedback Frequency Already Exist`,
+            })
+            return false
+        }
 
         console.log(checkMailExist);
         if (checkMailExist == 0) {
@@ -896,6 +954,7 @@ export default function AssignSurvey(props) {
                 console.log("grather")
                 setConfirmDialog({
                     isOpen: true,
+                    type: "error",
                     title: 'Alert',
                     subTitle: `Employees Or Manager Count Should Not Be Gratherthan ${no_of_emp}`,
                 })
@@ -910,7 +969,7 @@ export default function AssignSurvey(props) {
             console.log(values);
             let counter = 0;
             var myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
+            // myHeaders.append("Content-Type", "application/json");
             myHeaders.append("Authorization", token);
             var raw = JSON.stringify({
                 first_name: values.employee_first_name,
@@ -930,10 +989,32 @@ export default function AssignSurvey(props) {
                 working_presence: values.working_presence,
                 year_of_experience: values.year_of_experience,
             })
+
+            var formdata = new FormData();
+            formdata.append("first_name", values.employee_first_name)
+            formdata.append("last_name", values.employee_last_name)
+            formdata.append("user_email", values.employee_email)
+            formdata.append("gender", values.employee_gender)
+            formdata.append("status", 'pending')
+            formdata.append("role", 4)
+            formdata.append("company_id", companyid)
+            formdata.append("manager_id", managerid)
+            formdata.append("feedback_frequency", values.feedback_frequency)
+            formdata.append("feedback_year", values.feedback_year)
+            formdata.append("feedback_month", values.feedback_month)
+            formdata.append("best_classified", radioValue)
+            formdata.append("service_external_client", radioValue1)
+            formdata.append("location", values.location)
+            formdata.append("working_presence", values.working_presence)
+            formdata.append("year_of_experience", values.year_of_experience)
+            if (values.emp) {
+                formdata.append("prof_img", values.emp[0].prof_img, values.emp[0].prof_img.name);
+             }
+
             var requestOptions = {
                 method: "PUT",
                 headers: myHeaders,
-                body: raw,
+                body: formdata,
                 redirect: "follow",
             };
             console.log(exitEmployeeId);
@@ -954,14 +1035,14 @@ export default function AssignSurvey(props) {
                             formdata.append('last_name', feedback_collected.lastName)
                             formdata.append('status', 'Pending')
                             formdata.append('recipient_role', feedback_collected.recipient_role)
-                            if (feedback_collected.prof_img) {
-                                formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
-                            }
+                            // if (feedback_collected.prof_img) {
+                            //     formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
+                            // }
                             // formdata.append('prof_img', feedback_collected.prof_img,feedback_collected.prof_img.name)
                             // formdata.append('file_img', feedback_collected.file)
                             formdata.append('user_email', feedback_collected.email)
                             formdata.append('feedback_frequency', values.feedback_frequency)
-
+                            formdata.append('feedback_year', values.feedback_year)
                             formdata.append('employee_id', exitEmployeeId)
                             formdata.append('manager_id', managerid)
                             formdata.append('company_id', companyid)
@@ -984,6 +1065,7 @@ export default function AssignSurvey(props) {
                                         // setloading(0)
                                         setConfirmDialog({
                                             isOpen: true,
+                                            type: "message",
                                             title: 'Alert',
                                             subTitle: "Survey Submitted Successfully",
                                         })
@@ -1034,6 +1116,7 @@ export default function AssignSurvey(props) {
                         //             //     // setloading(0)
                         //             //     setConfirmDialog({
                         //             //         isOpen: true,
+                        // type:"message",
                         //             //         title: 'Alert',
                         //             //         subTitle: "Survey Submitted Successfully",
                         //             //     })
@@ -1088,6 +1171,7 @@ export default function AssignSurvey(props) {
                             <div className="row">
                                 {getEmployeesData.length !== 0 ? (
                                     <div className="col m8 s12 padtb">
+                                        {/* gggggg */}
                                         <CustomSelect
                                             onChange={value => handleChangeEmployee(value)}
                                             options={getEmployeesData}
@@ -1311,6 +1395,35 @@ export default function AssignSurvey(props) {
                                                             {errors.year_of_experience ? <div className='error'>{errors.year_of_experience}</div> : null}
                                                         </div>
                                                     </div>
+
+                                                    <div className="row">
+                                                        <div className="col m2 s12 padtb">
+                                                        </div>
+                                                        <div className="col m4 s6 padtb">
+                                                            <h6 >Select Image</h6>
+                                                        </div>
+                                                        <div className="col m4 s6 padtb">
+
+                                                            <div className="file-field input-field">
+                                                                <div className="btn float-right">
+                                                                    <span>File</span>
+                                                                    <input type="file"
+                                                                        // name={`collect_feedback.${index}.prof_img`}
+                                                                        onChange={value => {
+                                                                            setFieldValue(`emp.${0}.prof_img`, (value.target.files && value.target.files[0] ? value.target.files[0] : ""))
+                                                                            setFieldValue(`emp.${0}.img_url`, (value.target.files && value.target.files[0] ? URL.createObjectURL(value.target.files[0]) : ""))
+                                                                        }
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div className="file-path-wrapper">
+                                                                    <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                    <img src={values.emp ? values.emp[0].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <div className="row">
                                                         <div className="col m12 s12 padtb">
                                                             <div className="col m2 s12 padtb">
@@ -1461,7 +1574,7 @@ export default function AssignSurvey(props) {
                                                                                     </div>
 
 
-                                                                                    <div className="col m2 s12 padtb">
+                                                                                    {/* <div className="col m2 s12 padtb">
                                                                                         <div className="file-field input-field">
                                                                                             <div className="btn float-right">
                                                                                                 <span>File</span>
@@ -1473,21 +1586,13 @@ export default function AssignSurvey(props) {
                                                                                                     }
                                                                                                     }
                                                                                                 />
-                                                                                                {/* <input className="file-path validate" type="text" defaultValue="Logo" /> */}
-
-                                                                                                {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
                                                                                             </div>
                                                                                             <div className="file-path-wrapper">
                                                                                                 <input className="file-path validate" type="text" defaultValue="Profile" />
                                                                                             </div>
                                                                                         </div>
-                                                                                        {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}
-
-                                                                                        {/* <span>{`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""}</span> */}
                                                                                         <img src={values.collect_feedback[index].img_url ? values.collect_feedback[index].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
-                                                                                        {/* <img src={`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""} className="comapnylogoimg" width="120" height="85" /> */}
-
-                                                                                    </div>
+                                                                                    </div> */}
 
 
                                                                                     {index > 0 && (
@@ -1585,6 +1690,7 @@ export default function AssignSurvey(props) {
                                                         </div>
                                                     </div>
                                                     <div className="row">
+                                                        {console.log(selectedUser)}
                                                         <div className="col m2 s12 padtb">
                                                             <EditTextField
                                                                 label="Employee First Name"
@@ -1785,6 +1891,34 @@ export default function AssignSurvey(props) {
                                                         </div>
                                                     </div>
                                                     <div className="row">
+                                                        <div className="col m2 s12 padtb">
+                                                        </div>
+                                                        <div className="col m4 s6 padtb">
+                                                            <h6 >Select Image</h6>
+                                                        </div>
+                                                        <div className="col m4 s6 padtb">
+
+                                                            <div className="file-field input-field">
+                                                                <div className="btn float-right">
+                                                                    <span>File</span>
+                                                                    <input type="file"
+                                                                        // name={`collect_feedback.${index}.prof_img`}
+                                                                        onChange={value => {
+                                                                            setFieldValue(`emp.${0}.prof_img`, (value.target.files && value.target.files[0] ? value.target.files[0] : ""))
+                                                                            setFieldValue(`emp.${0}.img_url`, (value.target.files && value.target.files[0] ? URL.createObjectURL(value.target.files[0]) : ""))
+                                                                        }
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div className="file-path-wrapper">
+                                                                    <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                    <img src={values.emp ? values.emp[0].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="row">
                                                         <div className="col m12 s12 padtb">
                                                             <div className="col m2 s12 padtb">
                                                             </div>
@@ -1865,7 +1999,7 @@ export default function AssignSurvey(props) {
                                                                                                         </div>
                                                                                                     )}
                                                                                             </div>
-                                                                                            <div className="col m2 s12 padtb">
+                                                                                            {/* <div className="col m2 s12 padtb">
                                                                                                 <div className="file-field input-field">
                                                                                                     <div className="btn float-right">
                                                                                                         <span>File</span>
@@ -1877,21 +2011,13 @@ export default function AssignSurvey(props) {
                                                                                                             }
                                                                                                             }
                                                                                                         />
-                                                                                                        {/* <input className="file-path validate" type="text" defaultValue="Logo" /> */}
-
-                                                                                                        {/* <img src={imageurl} className="comapnylogoimg" width="120" height="85" /> */}
                                                                                                     </div>
                                                                                                     <div className="file-path-wrapper">
                                                                                                         <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                                                        <img src={values.collect_feedback[index].img_url ? values.collect_feedback[index].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                {/* {console.log(JSON.stringify(`${values.collect_feedback[0]}`))} */}
-
-                                                                                                {/* <span>{`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""}</span> */}
-                                                                                                <img src={values.collect_feedback[index].img_url ? values.collect_feedback[index].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
-                                                                                                {/* <img src={`values.collect_feedback.${index}.img_url`?`values.collect_feedback.${index}.img_url`:""} className="comapnylogoimg" width="120" height="85" /> */}
-
-                                                                                            </div>
+                                                                                            </div> */}
 
                                                                                             {index > 0 && (
                                                                                                 <div className="col m1 s12 padtb">
@@ -1969,7 +2095,11 @@ export default function AssignSurvey(props) {
                     </div>
                 ) : (null)}
             </div>
-            <MaxWidthDialog setConfirmDialog={setConfirmDialog} confirmDialog={confirmDialog} link={'/'} />
+            <MaxWidthDialog
+                setConfirmDialog={setConfirmDialog}
+                confirmDialog={confirmDialog}
+                link={'/'}
+            />
         </div >
     )
 }

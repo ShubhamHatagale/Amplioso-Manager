@@ -14,6 +14,8 @@ import EditAssignSurvey from "./pages/Managers/EditLaunchServey";
 import { useLocation } from "react-router-dom";
 import EditSurvey from "./pages/Managers/EditSurvey";
 import ManagerLeads from "./pages/Managers/ManagerLeads";
+import Survey from "./pages/Managers/Survey";
+import SurveyReport from "./pages/Managers/SurveyReport";
 
 const ManagerRouting = () => {
     const history = useHistory();
@@ -54,6 +56,16 @@ const ManagerRouting = () => {
             </ProtectedRoute>
             <ProtectedRoute exact path="/view_all_surveys/view">
                 <ManagerSidebar data={<EditAssignSurvey />}
+                />
+            </ProtectedRoute>
+
+            <ProtectedRoute exact path="/survey">
+                <ManagerSidebar data={<Survey />}
+                />
+            </ProtectedRoute>
+
+            <ProtectedRoute exact path="/survey_report">
+                <ManagerSidebar data={<SurveyReport />}
                 />
             </ProtectedRoute>
 

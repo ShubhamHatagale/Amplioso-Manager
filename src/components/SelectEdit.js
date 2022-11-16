@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 
 export default ({ onChange, options, value, className, Field, defValue, disable, search }) => {
+    console.log(options)
+    console.log(Field)
+    console.log(defValue)
     let classes = (Field === 'employee_gender' || Field === 'FeedBackYear' || Field === 'FeedBackMonth') ? 'selectpos' : '';
     let issearch = search === true ? true : false;
     const dot = () => ({
@@ -126,6 +129,16 @@ export default ({ onChange, options, value, className, Field, defValue, disable,
         }
         if (Field === 'recipient_role') {
             return (options.map(data => ({ label: data.label, value: data.value })))
+        }
+        if (Field === 'emp') {
+            return (options.map(data => ({ label: data.first_name + " " + data.last_name, value: data.id })))
+        }
+        if (Field === 'feed_freq') {
+            return (options.map(data => ({ label: data.feedback_frequencies, value: data.id })))
+        }
+
+        if (Field === 'year') {
+            return (options.map(data => ({ label: data, value: data })))
         }
     }
 

@@ -724,7 +724,7 @@ export default function AssignSurvey(props) {
                             headers: myHeadersForm,
                             body: formdata,
                             redirect: 'follow'
-                        };
+                        }; 
 
 
                         // console.log(formdata)
@@ -918,7 +918,7 @@ export default function AssignSurvey(props) {
     }
 
     const OnSubmitEditForm = async (values) => {
-        alert("shub")
+        // alert("shub")
         // if (feedback_collected.prof_img) {
         //     formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
         // }
@@ -1360,10 +1360,10 @@ export default function AssignSurvey(props) {
                                                     <div className="row">
                                                         <div className="col m2 s12 padtb">
                                                         </div>
-                                                        <div className="col m4 s12 padtb">
+                                                        <div className="col m2 s6 padtb">
                                                             <h6 >Working Presence</h6>
                                                         </div>
-                                                        <div className="col m2 s12 padtb">
+                                                        <div className="col m2 s6 padtb">
                                                             <CustomSelect
                                                                 search={false}
                                                                 onChange={value => setFieldValue('working_presence', value)}
@@ -1399,13 +1399,41 @@ export default function AssignSurvey(props) {
                                                     <div className="row">
                                                         <div className="col m2 s12 padtb">
                                                         </div>
-                                                        <div className="col m4 s6 padtb">
+                                                        <div className="col m2 s6 padtb">
                                                             <h6 >Select Image</h6>
                                                         </div>
-                                                        <div className="col m4 s6 padtb">
+                                                        <div className="col m3 s6 padtb">
 
                                                             <div className="file-field input-field">
                                                                 <div className="btn float-right">
+                                                                    <span>File</span>
+                                                                    <input type="file"
+                                                                        // name={`collect_feedback.${index}.prof_img`}
+                                                                        onChange={value => {
+                                                                            setFieldValue(`emp.${0}.prof_img`, (value.target.files && value.target.files[0] ? value.target.files[0] : ""))
+                                                                            setFieldValue(`emp.${0}.img_url`, (value.target.files && value.target.files[0] ? URL.createObjectURL(value.target.files[0]) : ""))
+                                                                        }
+                                                                        }
+
+                                                                    />
+                                                                </div>
+                                                                <div className="file-path-wrapper">
+                                                                <input className="file-path validate" type="text" defaultValue="Profile" />
+                                                                    <img src={values.emp ? values.emp[0].img_url : ""} className="comapnylogoimg" style={{ marginLeft: "18px" }} width="120" height="85" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {/* <div className="row">
+                                                        <div className="col m2 s6 padtb">
+                                                        </div>
+                                                        <div className="col m2 s6 padtb">
+                                                            <h6 >Select Image</h6>
+                                                        </div>
+                                                        <div className="col m2 s6 padtb">
+
+                                                            <div className="file-field input-field">
+                                                                <div className="btn float-righ">
                                                                     <span>File</span>
                                                                     <input type="file"
                                                                         // name={`collect_feedback.${index}.prof_img`}
@@ -1422,7 +1450,7 @@ export default function AssignSurvey(props) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div> */}
 
                                                     <div className="row">
                                                         <div className="col m12 s12 padtb">

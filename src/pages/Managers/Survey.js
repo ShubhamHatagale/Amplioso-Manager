@@ -139,8 +139,9 @@ export default function Survey() {
       const respLength = response.data;
       console.log(respLength)
 
-      window.location.replace(`http://localhost:3001/main_amp/ReportPdf?id=${respLength.id}`)
-      
+      // window.location.replace(`http://localhost:3001/main_amp/ReportPdf?id=${respLength.id}`)
+      window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}`)
+
       // history.push({
       //   state: respLength,
         

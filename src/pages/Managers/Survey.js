@@ -205,7 +205,7 @@ export default function Survey() {
                         </div>
                     </div> */}
         </div>
-        {(resultLength === 0) ? (
+        {(resultLength > 0) ? (
           <div className="pt-0 main-screen">
             <Formik
               initialValues={initialValues}

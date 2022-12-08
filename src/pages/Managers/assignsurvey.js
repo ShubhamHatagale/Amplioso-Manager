@@ -120,6 +120,7 @@ export default function AssignSurvey(props) {
         let response = await res.json();
         let result = response.data;
         feedback_data = result;
+        console.log(result)
         setgetfeeddata(result);
     }
 
@@ -923,7 +924,7 @@ export default function AssignSurvey(props) {
         //     formdata.append("prof_img", feedback_collected.prof_img, feedback_collected.prof_img.name);
         // }
         console.log(values)
-        console.log(values.emp[0].prof_img)
+        // console.log(values.emp[0].prof_img)
 
         if (values.emp) {
            console.log("prof_img", values.emp[0].prof_img, values.emp[0].prof_img.name);
@@ -1994,7 +1995,7 @@ export default function AssignSurvey(props) {
                                                                                                     name={`collect_feedback.${index}.email`}
                                                                                                     type="text"
                                                                                                 />
-                                                                                                <span>{Errordisplay}</span>
+                                                                                                <span >{Errordisplay}</span>
                                                                                             </div>
                                                                                             <div className="col m2 s12 padtb">
                                                                                                 {/* <AssignTextField

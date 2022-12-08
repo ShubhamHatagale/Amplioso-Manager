@@ -99,7 +99,7 @@ function ManagerHeader() {
 
         // console.log(result.length +"+"+ res2ult.lenght)
 
-        set_manage_mastercount(result);
+        set_manage_mastercount(res3ult);
 
 
     }

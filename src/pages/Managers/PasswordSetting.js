@@ -12,8 +12,6 @@ import Input from "@material-ui/core/Input";
 require("dotenv").config();
 var crypto = require("crypto");
 export default function PasswordSetting() {
-    const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '', type: '' })
-    const [confirmDialog1, setConfirmDialog1] = useState({ isOpen: false, title: '', subTitle: '', type: '' })
     const BaseURL = process.env.REACT_APP_Base_URL;
     const id = localStorage.getItem("manager_id")
     // const initialValues = {
@@ -34,15 +32,30 @@ export default function PasswordSetting() {
 
     });
 
+   
+    // etc appacche host 000/cns settings
+
+    let [oldpassword, setoldpassword] = useState('')
+    const [showPass, setshowPass] = useState(false)
+    const [showConfirmPass, setshowConfirmPass] = useState(false)
+
+    const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '', type: '' })
+    const [confirmDialog1, setConfirmDialog1] = useState({ isOpen: false, title: '', subTitle: '', type: '' })
+    const initialValues = {
+        oldpassword: "",
+        password: "",
+        confirmpassword: "",
+    };
     const validate = Yup.object({
         oldpassword: Yup.string().required('required'),
-        new_password: Yup.string().required('required'),
+        password: Yup.string().required('required'),
         confirmpassword: Yup.string()
             .oneOf([Yup.ref('password'), null], 'Passwords must match').required('required')
     });
-    // etc appacche host 000/cns settings
+
     const OnSubmitForm = async (values) => {
-        // alert("g")
+        console.log(values)
+        // return false
         const checkPassword = await crypto.createHash('sha512').update(values.oldpassword).digest('hex');
         const token = localStorage.getItem("manager_jwt");
         console.log(checkPassword);
@@ -58,13 +71,21 @@ export default function PasswordSetting() {
         );
         let response = await res.json();
         let result = response.data;
+        console.log(result)
+
         if (result && checkPassword) {
             let oldPassword;
             result.map((item, key) => {
                 oldPassword = item.password;
             })
             console.log(oldPassword);
+            // console.log(values.password)
+
             if (checkPassword === oldPassword) {
+                // console.log(values.password)
+                console.log(checkPassword)
+                console.log(oldPassword)
+                return false
                 try {
                     fetch(BaseURL + `/company/managers/resetpassword/${id}`, {
                         method: "put",
@@ -160,8 +181,8 @@ export default function PasswordSetting() {
                     </div> */}
                 </div>
                 <div className="pt-0 main-screen">
-                    <Formik
-                        initialValues={values}
+                <Formik
+                        initialValues={initialValues}
                         validationSchema={validate}
                         onSubmit={(values) => {
                             OnSubmitForm(values);
@@ -170,67 +191,39 @@ export default function PasswordSetting() {
                         {(formik) => (
                             <Form>
                                 <div className="row">
+                                    {/* <input type="checkbox" >Show Password</input> */}
+
                                     <div className="password-settings">
                                         <PasswordTextField
-                                            type={values.show_old_password ? "text" : "password"}
-                                            onChange={handleoldpasswordChange("oldpassword")}
-                                            value={values.oldpassword}
                                             label="Old Password"
                                             elementType="add"
                                             name="oldpassword"
-                                            // type="text"
-                                            fullWidth
-
-
+                                            type="text"
                                         />
-                                        {/* <div style={{ position: "absolute", left: "78rem", bottom: "68%" }}
-                                            onClick={handleClickshow_old_password}
-                                            onMouseDown={handleMouseDownoldpassword}
-                                        >
-                                            {values.show_old_password ? <Visibility /> : <VisibilityOff />}
-                                        </div> */}
-
                                         <PasswordTextField
-                                            type={values.show_new_password ? "text" : "password"}
-                                            onChange={handlenew_passwordChange("new_password")}
-                                            value={values.new_password}
-
                                             label="New Password"
                                             elementType="add"
                                             name="password"
-                                            // type="password"
-                                            fullWidth
-
-
+                                            type={showPass ? "text" : "password"}
                                         />
-                                        {/* <div style={{ position: "absolute", left: "78rem", bottom: "57%" }}
-                                            onClick={handleClickshow_new_password}
-                                            onMouseDown={handleMouseDownnew_password}
-                                        >
-                                            {values.show_new_password ? <Visibility /> : <VisibilityOff />}
-                                        </div> */}
+                                        {/* <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike" /> */}
 
+                                        {/* <div ><span style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowPass(!showPass)}> show passsword</span></div> */}
+                                        {/* <div><Visibility style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowPass(!showPass)} /></div> */}
+                                        {/* <div>{showPass ? <Visibility style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowPass(!showPass)} /> : <VisibilityOff style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowPass(!showPass)} />}</div> */}
 
+                                        <div>
+                                            <PasswordTextField
+                                                label="Confirm Password"
+                                                elementType="add"
+                                                name="confirmpassword"
+                                                type={showConfirmPass ? "text" : "password"}
+                                            />
+                                            {/* <div ><span style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowConfirmPass(!showConfirmPass)}>show passsword</span></div> */}
+                                            {/* <div>{showConfirmPass ? <Visibility style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowConfirmPass(!showConfirmPass)} /> : <VisibilityOff style={{ position: "relative", left: "500px", top: "-56px", fontSize: "16px", textTransform: "capitalize", textDecoration: "underline", cursor: "pointer" }} onClick={() => setshowConfirmPass(!showConfirmPass)} />}</div> */}
 
-                                        <PasswordTextField
-                                            type={values.show_confirm_password ? "text" : "password"}
-                                            onChange={handleconfirm_passwordChange("confirmpassword")}
-                                            value={values.confirmpassword}
+                                        </div>
 
-                                            label="Confirm Password"
-                                            elementType="add"
-                                            name="confirmpassword"
-                                            // type="password"
-                                            fullWidth
-
-
-                                        />
-                                        {/* <div style={{ position: "absolute", left: "78rem", bottom: "47%" }}
-                                            onClick={handleClickshow_confirm_password}
-                                            onMouseDown={handleMouseDownshow_confirm_password}
-                                        >
-                                            {values.show_confirm_password ? <Visibility /> : <VisibilityOff />}
-                                        </div> */}
                                         <div className="input-field col m12 s12 pad-r center">
                                             <button
                                                 class="waves-effect waves-light btn-large mb-1 mr-1"

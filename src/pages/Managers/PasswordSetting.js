@@ -85,7 +85,7 @@ export default function PasswordSetting() {
                 // console.log(values.password)
                 console.log(checkPassword)
                 console.log(oldPassword)
-                return false
+                // return false
                 try {
                     fetch(BaseURL + `/company/managers/resetpassword/${id}`, {
                         method: "put",

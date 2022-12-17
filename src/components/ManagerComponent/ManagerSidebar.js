@@ -135,7 +135,8 @@ export default function ManagerSidebar(props) {
         localStorage.removeItem("manager_jwt")
         localStorage.removeItem("companyId")
         // dispatch({ type: "CLEAR" })
-        history.push("/")
+        // history.push("/")
+        window.location.replace("http://dev.amplioso.com/sign_in")
     }
     const history = useHistory()
     const classes = useStyles();

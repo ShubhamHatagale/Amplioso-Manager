@@ -112,6 +112,7 @@ export default function Survey() {
   });
 
   const OnSubmitForm = async (values) => {
+    var man_id = localStorage.getItem("manager_id");
 
     console.log(values);
 
@@ -119,6 +120,7 @@ export default function Survey() {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", token);
     var raw = JSON.stringify({
+      manager_id: man_id,
       employee_id: values.emp,
       feedback_frequency: values.feed_freq,
       year: values.year
@@ -139,12 +141,12 @@ export default function Survey() {
       const respLength = response.data;
       console.log(respLength)
 
-      window.location.replace(`http://localhost:3001/main_amp/ReportPdf?id=${respLength.id}`)
+      window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}&company_id=${respLength.company_id}`)
       // window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}`)
 
       // history.push({
       //   state: respLength,
-        
+
       //   pathname: `http://localhost:3001/main_amp/ReportPdf?id=${2}`
 
       // })

@@ -259,7 +259,7 @@ export default function Survey() {
       headers: myHeaders,
       body: raw,
       redirect: "follow",
-    };
+    }; 
 
     let res = await fetch(`${backendUrl}/masters/collect_feedback/feedback_report`, requestOptions);
 

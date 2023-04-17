@@ -1,4 +1,4 @@
-import { FormControlLabel, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
+import { Box, FormControl, FormControlLabel, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
 import { Form, Formik } from 'formik';
 import getYear from "date-fns/getYear";
 import React, { useEffect, useState } from 'react'
@@ -14,6 +14,22 @@ export default function Survey() {
     return new Array((end + 1) - start).fill().map((d, i) => i + start);
   };
 
+  const [DefaultItem, setDefaultItem] = useState();
+  const [val_emp, setval_emp] = useState();
+  const [val_feed, setval_feed] = useState();
+  const [val_year, setval_year] = useState('');
+  const [feedyear, setfeedyear] = useState([]);
+  const [ManagerList, setManagerList] = useState([]);
+
+  // const [yearList, setyearList] = useState('');
+  const FeedFreq = [
+    { feedback_frequencies: 'Annually', id: 1 },
+    { feedback_frequencies: 'Semi-Annually', id: 2 },
+    { feedback_frequencies: 'Quaterly', id: 3 },
+    { feedback_frequencies: 'Monthly', id: 4 },
+  ]
+
+
   const token = localStorage.getItem("manager_jwt");
   const BaseURL = process.env.REACT_APP_Base_URL;
   const backendUrl = process.env.REACT_APP_Base_URL_Backend;
@@ -25,10 +41,11 @@ export default function Survey() {
   let [extensionIdlabel, setextensionIdlabel] = useState('');
   let [resultLength, setresultLength] = useState('');
   let [generalmanagerid, setGenerealmanagerid] = useState('');
-  const [employeeList, setemployeeList] = useState('');
-  const [feed_freqList, setfeed_freqList] = useState('');
+  const [employeeList, setemployeeList] = useState([]);
+  const [feed_freqList, setfeed_freqList] = useState([]);
   // const [yearList, setyearList] = useState('');
   const yearList = range(1800, getYear(new Date()));
+
   const history = useHistory()
 
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '', type: '' })
@@ -53,9 +70,121 @@ export default function Survey() {
     { label: 'By 2 weeks with a reminder sent out', value: 2 },
   ]
 
+  const handleChangeA = async (e) => {
+    console.log(e.target.value)
+    var name = e.target.name;
+    var value = e.target.value;
+    const token = localStorage.getItem("manager_jwt");
+
+
+
+    console.log(name)
+    switch (name) {
+      case "manager":
+
+        setfeed_freqList([])
+        setfeedyear([])
+        setfeedyear([])
+
+        var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'multipart/form-data')
+        myHeaders.append("Authorization", token);
+        console.log(id.userId)
+
+        let res = await fetch(BaseURL + `/employeedetails/manager/${value}`,
+          {
+            method: "get",
+            headers: myHeaders
+          }
+        );
+        let response = await res.json();
+        let result = response.data;
+        console.log(result);
+        setemployeeList(result);
+        setDefaultItem(value)
+        break;
+      case "employee":
+        setfeedyear([])
+        setval_emp(value)
+        console.log("mannage")
+        let myHeaders1 = new Headers();
+        myHeaders1.append('Content-Type', 'multipart/form-data')
+        myHeaders1.append("Authorization", token);
+        let res1 = await fetch(BaseURL + `/collect_feedback/employee/${value}`,
+          {
+            method: "get",
+            headers: myHeaders1
+          }
+        );
+        let response1 = await res1.json();
+        let result1 = response1.data;
+        console.log(result1)
+
+        // console.log(result1)
+        // var arr = []
+        // var arr2 = []
+
+        // // var arrYear = []
+        // employeeList.map((item, key) => {
+        //     console.log(FeedFreq[item.feedback_frequency])
+        //     arr.push(FeedFreq[item.feedback_frequency - 1])
+        //     arr2.push(item.feedback_year)
+        // })
+        // console.log(arr)
+        // console.log(arr2)
+        // setfeedyear(arr2)
+        setfeed_freqList(result1);
+        break;
+
+      case "feedback":
+        console.log(value)
+        console.log(employeeList)
+        setval_feed(value)
+
+        let myHeaders2 = new Headers();
+        myHeaders2.append('Content-Type', 'multipart/form-data')
+        myHeaders2.append("Authorization", token);
+        let res2 = await fetch(BaseURL + `/collect_feedback/employee/${value}`,
+          {
+            method: "get",
+            headers: myHeaders2
+          }
+        );
+        let response2 = await res2.json();
+        let result2 = response2.data;
+        console.log(employeeList)
+
+        // console.log(result2)
+        // var arr = []
+        // var arr2 = []
+
+        // // var arrYear = []
+        // employeeList.map((item, key) => {
+        //     console.log(FeedFreq[item.feedback_frequency])
+        //     arr.push(FeedFreq[item.feedback_frequency - 2])
+        //     arr2.push(item.feedback_year)
+        // })
+        // console.log(arr)
+        // console.log(arr2)
+        setfeedyear(result2)
+        // setfeed_freqList(result1);
+        // var yearArr = [];
+        // console.log(employeeList[e - 1])
+        // yearArr.push(employeeList[e - 1])
+        // setfeedyear(yearArr)
+        break;
+      case "year":
+        setval_year(value)
+        break
+      default:
+      // text = "No value found";
+    }
+
+
+  }
   useEffect(() => {
     getEmployyes()
-    getFeedback()
+    // getFeedback()
     // getRecordsByManagersId();
 
     const fetchData = async () => {
@@ -121,9 +250,9 @@ export default function Survey() {
     myHeaders.append("Authorization", token);
     var raw = JSON.stringify({
       manager_id: man_id,
-      employee_id: values.emp,
-      feedback_frequency: values.feed_freq,
-      year: values.year
+      employee_id: val_emp,
+      feedback_frequency: val_feed,
+      year: val_year
     })
     var requestOptions = {
       method: "POST",
@@ -201,111 +330,168 @@ export default function Survey() {
         <div className="section-title">
           <h1>Survey Report</h1>
           {/* <div className="nav-wrapper inner-breadcrumb">
-                        <div className="col s12 pad-l-0">
-                            <a href="#!">Dashboard </a>
-                            <a href="#!">General Manager Settings</a>
-                        </div>
-                    </div> */}
-        </div>
-        {(resultLength > 0) ? (
-          <div className="pt-0 main-screen">
-            <Formik
-              initialValues={initialValues}
-              // validationSchema={validate}
-              validateOnBlur={false}
-              validateOnChange={false}
-              onSubmit={(values, props) => {
-                OnSubmitForm(values, props);
-              }}
-            >
-              {formik => (
-                <Form>
-                  {employeeList && yearList && feed_freqList ? (
-                    <div>
-                      <div className="row">
-                        <div className="col m2 s12 padtb">
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <h6 >Select Employee
-                            {/* <span onClick={setshowremind(showremind = !showremind)}> <b>?</b> </span> */}
-                          </h6>
-                          {showremind ? (
-                            <div>
-                              <ul>
-                                <li>Just enough : 2 week</li>
-                                <li>Don’t be shy : 1 week</li>
-                              </ul>
-                            </div>
-                          ) : (null)}
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <CustomSelect
-                            onChange={value => formik.setFieldValue('emp', value)}
-                            options={employeeList}
-                            Field={'emp'}
-                            Fieldname={'emp'}
-                            className='select-dropdown dropdown-trigger'
-                          />
-                          {formik.errors.reminder_setting_manager ? <div className='error'>{formik.errors.reminder_setting_manager}</div> : null}
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col m2 s12 padtb">
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <h6 >Select Feedback Frequency</h6>
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <CustomSelect
-                            onChange={value => formik.setFieldValue('feed_freq', value)}
-                            options={feed_freqList}
-                            Field={'feed_freq'}
-                            Fieldname={'feed_freq'}
-                            className='select-dropdown dropdown-trigger'
-                          />
-                          {formik.errors.reminder_setting_manager ? <div className='error'>{formik.errors.reminder_setting_manager}</div> : null}
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col m2 s12 padtb">
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <h6 >Select Year</h6>
-                        </div>
-                        <div className="col m4 s12 padtb">
-                          <CustomSelect
-                            search={false}
-                            onChange={value => formik.setFieldValue('year', value)}
-
-                            // onChange={value => setFieldValue('feedback_year', value)}
-                            // value={values.feedback_year}
-                            // defValue={yearList}
-                            options={yearList}
-                            Field={'year'}
-                            Fieldname={'year'}
-                            className='select-dropdown dropdown-trigger'
-                          />
-                          {formik.errors.reminder_setting_manager ? <div className='error'>{formik.errors.reminder_setting_manager}</div> : null}
-
-                        </div>
-                      </div>
-                      <div class="input-field col m8 s8 pad-r center">
-                        <button
-                          class="waves-effect waves-light btn-large mb-1 mr-1"
-                          type="submit"
-                          name="action"
-                        >
-                          Submit
-                        </button>
-                      </div>
+                    <div className="col s12 pad-l-0">
+                        <a href="#!">Dashboard </a>
+                        <a href="#!">General Manager Settings</a>
                     </div>
-                  ) : null}
+                </div> */}
+        </div>
+        <div className="pt-5 main-screen">
 
-                </Form>
-              )}
-            </Formik>
+          <div>
+
+            <div className="row">
+              <div className="col m2 s12 padtb">
+              </div>
+              <div className="col m4 s12 padtb">
+                <h6 >Select Employee
+                  {/* <span onClick={setshowremind(showremind = !showremind)}> <b>?</b> </span> */}
+                </h6>
+                {showremind ? (
+                  <div>
+                    <ul>
+                      <li>Just enough : 2 week</li>
+                      <li>Don’t be shy : 1 week</li>
+                    </ul>
+                  </div>
+                ) : (null)}
+              </div>
+
+              <div className="col m4 s12 padtb">
+                <Box sx={{ minWidth: 120 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Select Employee</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name='employee'
+                      value={val_emp}
+                      // placeholder="seee"
+                      onChange={handleChangeA}
+                      label="DefaultItem"
+                      // onChange={(e) => setDefaultItem(e.target.value)}
+                      style={{ border: "0.5px solid #e7d4d4", borderRadius: "2px", padding: "5px", height: "50px" }}
+                    >
+
+                      {employeeList.map((item, key) => {
+                        return (
+                          <MenuItem value={item.id} >{item.first_name} {item.last_name}</MenuItem>
+                        )
+                      })}
+
+                    </Select>
+                  </FormControl>
+                </Box>
+
+
+
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col m2 s12 padtb">
+              </div>
+              <div className="col m4 s12 padtb">
+                <h6 >Select Feedback Frequency</h6>
+              </div>
+              <div className="col m4 s12 padtb">
+
+                <Box sx={{ minWidth: 120 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Select Feedback Frequency</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name='feedback'
+                      value={val_feed}
+                      // placeholder="seee"
+                      onChange={handleChangeA}
+                      label="DefaultItem"
+                      // onChange={(e) => setDefaultItem(e.target.value)}
+                      style={{ border: "0.5px solid #e7d4d4", borderRadius: "2px", padding: "5px", height: "50px" }}
+
+                    >
+
+                      {feed_freqList.map((item, key) => {
+                        console.log(item)
+                        return (
+                          <MenuItem value={item.feedback_frequency} >{FeedFreq[item.feedback_frequency - 1].feedback_frequencies} </MenuItem>
+                        )
+                      })}
+
+                    </Select>
+                  </FormControl>
+                </Box>
+
+
+
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col m2 s12 padtb">
+              </div>
+              <div className="col m4 s12 padtb">
+                <h6 >Select Year</h6>
+              </div>
+              <div className="col m4 s12 padtb">
+
+
+                <Box sx={{ minWidth: 120 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Select Year</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name='year'
+                      value={val_year}
+                      // placeholder="seee"
+                      onChange={handleChangeA}
+                      label="DefaultItem"
+                      // onChange={(e) => setDefaultItem(e.target.value)}
+                      style={{ border: "0.5px solid #e7d4d4", borderRadius: "2px", padding: "5px", height: "50px" }}
+                    >
+
+                      {feedyear.map((item, key) => {
+                        return (
+                          <MenuItem value={item.feedback_year} >{item.feedback_year} </MenuItem>
+                        )
+                      })}
+
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                {/* <CustomSelect
+                                        search={false}
+                                        // onChange={value => formik.setFieldValue('year', value)}
+
+                                        // onChange={value => setFieldValue('feedback_year', value)}
+                                        // value={values.feedback_year}
+                                        // defValue={yearList}
+                                        options={feedyear}
+                                        Field={'emp_year'}
+                                        Fieldname={'emp_year'}
+                                        className='select-dropdown dropdown-trigger'
+                                    /> */}
+
+              </div>
+
+              <div class="input-field col m8 s8 pad-r center">
+                <button
+                  class="waves-effect waves-light btn-large mb-1 mr-1"
+                  type="submit"
+                  name="action"
+                  onClick={OnSubmitForm}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+
           </div>
-        ) : null}
+
+        </div>
       </div>
       <MaxWidthDialog setConfirmDialog={setConfirmDialog} confirmDialog={confirmDialog} link={'/'} />
     </div>

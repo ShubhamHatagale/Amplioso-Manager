@@ -31,7 +31,7 @@ export default function AssignSurvey(props) {
 
     const years = range(1800, getYear(new Date()));
     const [showEdit, setShowEdit] = useState(false);
-    const [showAdd, setShowAdd] = useState(false);
+    const [showAdd, setShowAdd] = useState(false); 
     const [count, setcount] = useState(0);
     const BaseURL = process.env.REACT_APP_Base_URL;
     const backend_url = process.env.REACT_APP_Base_URL_Backend;
@@ -697,7 +697,7 @@ export default function AssignSurvey(props) {
             body: formdata,
             redirect: "follow",
         };
-        fetch(BaseURL + `/employeedetails`, requestOptions)
+        fetch(backend_url + `/masters/employeedetails`, requestOptions)
             .then((response) => response.json())
             .then((resData) => {
                 let count = 0;
@@ -742,7 +742,7 @@ export default function AssignSurvey(props) {
 
 
                         // console.log(formdata)
-                        fetch(BaseURL + `/collect_feedback`, requestOptionsForm)
+                        fetch(backend_url + `/masters/collect_feedback`, requestOptionsForm)
                             .then(responseForm => responseForm.json())
                             .then(resDataForm => {
                                 // console.log(resDataForm)

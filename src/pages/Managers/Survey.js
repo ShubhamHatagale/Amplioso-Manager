@@ -270,7 +270,7 @@ export default function Survey() {
       const respLength = response.data;
       console.log(respLength)
 
-      window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}&company_id=${respLength.company_id}`)
+      window.location.replace(`https://phpstack-988002-3467030.cloudwaysapps.com/ReportPdf?id=${respLength.id}&company_id=${respLength.company_id}`)
       // window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}`)
 
       // history.push({

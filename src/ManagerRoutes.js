@@ -33,6 +33,7 @@ const ManagerRouting = () => {
     return (
         <Switch>
             <Route exact path="/login" component={Login}>
+                {/* <Route exact path="/" component={Login}> */}
             </Route>
             <Route path="/forgot-password" component={ForgotPassword}>
             </Route>

@@ -140,7 +140,7 @@ export default function Survey() {
     if (response.status == 200) {
       const respLength = response.data;
       console.log(respLength)
-
+      // https://phpstack-988002-3467030.cloudwaysapps.com/
       window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}&company_id=${respLength.company_id}`)
       // window.location.replace(`http://dev.amplioso.com/main_amp/ReportPdf?id=${respLength.id}`)
 
